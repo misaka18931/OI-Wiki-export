@@ -63,6 +63,9 @@ jobs:
             node index.js ./OI-wiki
             cat inc.tex includes.tex > to.tex
             mv to.tex includes.tex
+            cd extra
+            ./gen.sh
+            cd ..
             
 
           root_file: |
