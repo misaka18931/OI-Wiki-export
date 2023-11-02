@@ -59,7 +59,9 @@ jobs:
             git clone https://github.com/OI-wiki/OI-wiki.git
             python3 increase-mem-limit.py
             fmtutil-sys --all
+            cp mkdocs.yml OI-wiki
             node index.js ./OI-wiki
+            
 
           root_file: |
             oi-wiki-export.tex
