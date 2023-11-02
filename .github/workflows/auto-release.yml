@@ -61,6 +61,8 @@ jobs:
             fmtutil-sys --all
             cp mkdocs.yml OI-wiki
             node index.js ./OI-wiki
+            cat inc.tex includes.tex > to.tex
+            mv to.tex includes.tex
             
 
           root_file: |
