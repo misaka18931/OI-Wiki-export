@@ -25,24 +25,22 @@ jobs:
           node-version: 18.x
           cache: 'npm'
 
+      - uses: typst-community/setup-typst@v3
+        with:
+          typst-version: 0.11.0
+          cache-dependency-path: OI-Wiki-export/oi-wiki-export-typst/oi-wiki.typ
+
       - name: Pre-build operations
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get install curl git unzip imagemagick libwebp-dev librsvg2-dev fonts-noto-cjk fonts-noto-cjk-extra
           sudo apt-get remove fonts-noto-color-emoji
           
-          curl -OL https://github.com/typst/typst/releases/download/v0.9.0/typst-x86_64-unknown-linux-musl.tar.xz
-          curl -OL https://github.com/megakite/texmath/releases/download/v0.12.8.3-20231003/texmath-arg
-          xz -dc typst-x86_64-unknown-linux-musl.tar.xz | tar -x
-          sudo mv ./typst-x86_64-unknown-linux-musl/typst /bin/
-          chmod +x texmath-arg
-          sudo mv texmath-arg /bin/
+          mkdir .fonts
+          curl -L $(gh api /repos/lxgw/LxgwWenKai/releases/latest -q '.assets[].browser_download_url | select(contains("tar.gz"))') | tar xfz - -C .fonts
           
-          curl -OL https://github.com/lxgw/LxgwWenKai/releases/download/v1.300/lxgw-wenkai-v1.300.tar.gz
-          gzip -dc lxgw-wenkai-v1.300.tar.gz | tar -x
-          sudo mv lxgw-wenkai-v1.300 /usr/share/fonts/
-          fc-cache
-          
-          git clone https://github.com/OI-wiki/OI-wiki.git
+          git clone https://github.com/OI-wiki/OI-wiki.git --depth=1 --single-branch -b master
           cd remark-typst
           npm install
           cd ..
@@ -53,10 +51,10 @@ jobs:
         run: |
           cd oi-wiki-export-typst
           node index.js ../OI-wiki
-          typst -v compile oi-wiki-export.typ
+          typst compile oi-wiki-export.typ --font-path .fonts
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OI-wiki.pdf
           path: ./oi-wiki-export-typst/oi-wiki-export.pdf

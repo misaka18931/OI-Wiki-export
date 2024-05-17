@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build the LaTeX document
         uses: OI-wiki/latex-action@v1.0.0
         with:
@@ -34,35 +34,35 @@ jobs:
             py3-pygments
             inkscape
             libxml2
+            openssh
           pre_compile: |
             umask 0 && npm config set cache /tmp/.npm
             wget -q -O notosans.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSans-hinted.zip"
             wget -q -O notoserif.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSerif-hinted.zip"
             wget -q -O notoserifcjk.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSerifCJKsc-hinted.zip"
             wget -q -O notosanscjk.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSansCJKsc-hinted.zip"
-            wget -q -O robotomono.zip "https://fonts.google.com/download?family=Roboto%20Mono"
+            git clone https://github.com/googlefonts/RobotoMono
             wget -q "https://mirror.math.princeton.edu/pub/CTAN/fonts/cm-unicode.zip"
             unzip -q notosans.zip -d notosans
             unzip -q notoserif.zip -d notoserif
             unzip -q notosanscjk.zip -d notosanscjk
             unzip -q notoserifcjk.zip -d notoserifcjk
-            unzip -q robotomono.zip -d robotomono
             unzip -q ./cm-unicode.zip
-            cp -r notosans notoserif notosanscjk notoserifcjk robotomono cm-unicode/fonts/otf/* /usr/share/fonts
+            cp -r notosans notoserif notosanscjk notoserifcjk cm-unicode/fonts/otf/* RobotoMono/fonts/ttf/* /usr/share/fonts
             fc-cache
             cd remark-latex
             npm i
             cd ..
             cd oi-wiki-export
             npm i
-            git clone https://github.com/OI-wiki/OI-wiki.git
+            git clone https://github.com/OI-wiki/OI-wiki.git --depth=1 --single-branch -b master
             python3 increase-mem-limit.py
             fmtutil-sys --all
             node index.js ./OI-wiki
 
           root_file: |
             oi-wiki-export.tex
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: OI-wiki.pdf
           path: ./oi-wiki-export/oi-wiki-export.pdf
